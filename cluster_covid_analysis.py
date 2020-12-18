@@ -4,29 +4,47 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 
+"""
+    This script is used to produce the violin plots for the surfing article and the Mehmet's research project.
+    The differences made between figures are:
+        1. The x parameter in the ax.text() function to adjust the position of the max PDF value.
+        2. The parameters passed to the set_ylim has changed depending on the metric.
+"""
+
 
 DAS_PATH = "/var/scratch/lvs215/processed-surf-dataset/"
 
+metric = sys.argv[1]
+ylabel = ""
+title = ""
 
-if len(sys.argv) != 2:
-    print("1 argument must be given")
+if metric == "node_memory_MemFree":
+    df_total = pd.read_parquet(DAS_PATH + "node_memory_MemTotal")
+    df_free = pd.read_parquet(DAS_PATH + "node_memory_MemFree")
+    # df = 1 - (df_free / df_total) # Utilization fraction
+    df = (df_total - df_free) / (1024 * 1024 * 1024)
+    ylabel = "Utilized memory [GB]"
+    title = "RAM Utilization"
+
+elif metric == "node_load1":
+    df = pd.read_parquet(DAS_PATH + metric)
+    ylabel = "Load1"
+    title = ""
+
+elif metric == "surfsara_ambient_temp":
+    df = pd.read_parquet(DAS_PATH + metric)
+    ylabel = "Temperature [C]"
+    title = ""
+
+elif metric == "surfsara_power_usage":
+    df = pd.read_parquet(DAS_PATH + metric)
+    ylabel = "Power consumption [W]"
+    title = ""
+
+else:
+    print("Select node_load1, surfsara_ambient_temp, surfsara_power_usage, or node_memory_MemFree")
     exit(1)
 
-elif sys.argv[1] != "node" and sys.argv[1] != "time" and sys.argv[1] != "all":
-    print("Arguments that can be passed: 'node', 'time', 'all' ")
-    exit(1)
-
-plot_type = sys.argv[1]
-
-
-df_total = pd.read_parquet(DAS_PATH + "node_memory_MemTotal")
-df_free = pd.read_parquet(DAS_PATH + "node_memory_MemFree")
-
-# Load parquets
-df_memory = 1 - (df_free / df_total) 
-df_load = pd.read_parquet(DAS_PATH + "node_load1")
-df_temp = pd.read_parquet(DAS_PATH + "surfsara_ambient_temp")
-df_power = pd.read_parquet(DAS_PATH + "surfsara_power_usage")
 
 #%% Helper functions
 def covid_non_covid(df):
@@ -60,50 +78,12 @@ def get_max_pdf(df):
     max_value = df_new.iloc[index_max_pdf]
     return (max_value["pdf"], max_value["target"])
 
-#%%
-df_load_covid, df_load_non_covid = covid_non_covid(df_load)
-df_power_covid, df_power_non_covid = covid_non_covid(df_power)
-df_temp_covid, df_temp_non_covid = covid_non_covid(df_temp)
-df_memory_covid, df_memory_non_covid = covid_non_covid(df_memory)
-#%%
+df_covid, df_non_covid = covid_non_covid(df)
+savefig_title = metric + "_cluster_violinplot.pdf"
 
-mean_per_node = "node"
-mean_per_timestamp = "time"
+df_covid_vals = get_custom_values(df_covid)
+df_non_covid_vals = get_custom_values(df_non_covid)
 
-if plot_type == mean_per_node:
-    savefig_title = "covid_cluster_mean_per_node_violinplot.pdf"
-    df_load_covid_m = df_load_covid.mean()
-    df_load_non_covid_m = df_load_non_covid.mean()
-    df_power_covid_m = df_power_covid.mean()
-    df_power_non_covid_m =  df_power_non_covid.mean()
-    df_temp_covid_m = df_temp_covid.mean()
-    df_temp_non_covid_m = df_temp_non_covid.mean()
-    df_memory_covid_m = df_memory_covid.mean()
-    df_memory_non_covid_m = df_memory_non_covid.mean()
-
-elif plot_type == mean_per_timestamp:
-    savefig_title = "covid_cluster_mean_per_timestamp_violinplot.pdf"
-    df_load_covid_m = df_load_covid.mean(axis=1)
-    df_load_non_covid_m = df_load_non_covid.mean(axis=1)
-    df_power_covid_m = df_power_covid.mean(axis=1)
-    df_power_non_covid_m =  df_power_non_covid.mean(axis=1)
-    df_temp_covid_m = df_temp_covid.mean(axis=1)
-    df_temp_non_covid_m = df_temp_non_covid.mean(axis=1)
-    df_memory_covid_m = df_memory_covid.mean(axis=1)
-    df_memory_non_covid_m = df_memory_non_covid.mean(axis=1)
-    
-else:
-    savefig_title = "covid_cluster_all_values_violinplot.pdf"
-   # df_load_covid_m = get_custom_values(df_load_covid)
-   # df_load_non_covid_m = get_custom_values(df_load_non_covid)
-    #df_power_covid_m = get_custom_values(df_power_covid)
-    #df_power_non_covid_m = get_custom_values(df_power_non_covid)
-    df_temp_covid_m = get_custom_values(df_temp_covid)
-    df_temp_non_covid_m = get_custom_values(df_temp_non_covid)
-    #df_memory_covid_m = get_custom_values(df_memory_covid)
-    #df_memory_non_covid_m = get_custom_values(df_memory_non_covid)
-
-#%%
 
 def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
     sns.violinplot(
@@ -130,12 +110,8 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
     if max_non_covid_val > 50:
         ax.text(x=1-0.05, y=51, s=str(round(max_non_covid_val, 1)), fontsize=16)
 
-fig, (ax_load, ax_power, ax_temp, ax_memory) = plt.subplots(4, 1, figsize=(12, 32))
+fig, ax = plt.subplots(figsize=(12, 8))
 fig.tight_layout(h_pad=10.0, w_pad=6.0)
 
-#plot_violin(df_load_covid_m, df_load_non_covid_m, ax_load, "Load1", "Load1")
-#plot_violin(df_power_covid_m, df_power_non_covid_m, ax_power, "Power consumption", "Power consumption [watt]")
-plot_violin(df_temp_covid_m, df_temp_non_covid_m, ax_temp, "Ambient temperature", "Temperature [C]")
-#plot_violin(df_memory_covid_m, df_memory_non_covid_m, ax_memory, "RAM utilization", "Utilized fraction")
-plt.subplots_adjust(wspace=0.15, hspace=0.2, left=0.11, bottom=0.15, right=0.98, top=0.96)
-plt.savefig(savefig_title, dpi=100)
+plot_violin(covid_val=df_covid_vals, non_covid_val=df_non_covid_vals, ax=ax, title=title, ylabel=ylabel)
+plt.savefig("/cluster_plots/" + savefig_title, dpi=100)
