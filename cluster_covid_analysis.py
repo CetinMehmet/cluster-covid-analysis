@@ -94,12 +94,12 @@ elif plot_type == mean_per_timestamp:
     
 else:
     savefig_title = "covid_cluster_all_values_violinplot.pdf"
-    df_load_covid_m = get_custom_values(df_load_covid)
-    df_load_non_covid_m = get_custom_values(df_load_non_covid)
+   # df_load_covid_m = get_custom_values(df_load_covid)
+   # df_load_non_covid_m = get_custom_values(df_load_non_covid)
     #df_power_covid_m = get_custom_values(df_power_covid)
     #df_power_non_covid_m = get_custom_values(df_power_non_covid)
-    #df_temp_covid_m = get_custom_values(df_temp_covid)
-    #df_temp_non_covid_m = get_custom_values(df_temp_non_covid)
+    df_temp_covid_m = get_custom_values(df_temp_covid)
+    df_temp_non_covid_m = get_custom_values(df_temp_non_covid)
     #df_memory_covid_m = get_custom_values(df_memory_covid)
     #df_memory_non_covid_m = get_custom_values(df_memory_non_covid)
 
@@ -114,10 +114,10 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
     ax.set_ylabel(ylabel, fontsize=22)
     ax.tick_params(axis='both', which='major', labelsize=20)
     ax.tick_params(axis='both', which='minor', labelsize=20)
-    ax.text(x=-0.45, y=int(get_max_pdf(covid_val)[1])+1, s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=16, color="black", va="center")
-    ax.text(x=0.4, y=int(get_max_pdf(non_covid_val)[1])+1, s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=16, color="black", va="center")
+    ax.text(x=-0.5, y=int(get_max_pdf(covid_val)[1]), s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=16, color="black", va="center")
+    ax.text(x=0.42, y=int(get_max_pdf(non_covid_val)[1]), s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=16, color="black", va="center")
     ax.set_xticks(np.arange(2))
-    ax.set_ylim(0, 50)
+    ax.set_ylim(0,)
     ax.set_xticklabels(
         ('covid', 'non-covid'),
        ha='center', fontsize=22
@@ -133,9 +133,9 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
 fig, (ax_load, ax_power, ax_temp, ax_memory) = plt.subplots(4, 1, figsize=(12, 32))
 fig.tight_layout(h_pad=10.0, w_pad=6.0)
 
-plot_violin(df_load_covid_m, df_load_non_covid_m, ax_load, "Load1", "Load1")
+#plot_violin(df_load_covid_m, df_load_non_covid_m, ax_load, "Load1", "Load1")
 #plot_violin(df_power_covid_m, df_power_non_covid_m, ax_power, "Power consumption", "Power consumption [watt]")
-#plot_violin(df_temp_covid_m, df_temp_non_covid_m, ax_temp, "Ambient temperature", "Temperature [celsius]")
+plot_violin(df_temp_covid_m, df_temp_non_covid_m, ax_temp, "Ambient temperature", "Temperature [C]")
 #plot_violin(df_memory_covid_m, df_memory_non_covid_m, ax_memory, "RAM utilization", "Utilized fraction")
 plt.subplots_adjust(wspace=0.15, hspace=0.2, left=0.11, bottom=0.15, right=0.98, top=0.96)
 plt.savefig(savefig_title, dpi=100)
