@@ -94,24 +94,16 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
     ax.set_ylabel(ylabel, fontsize=22)
     ax.tick_params(axis='both', which='major', labelsize=20)
     ax.tick_params(axis='both', which='minor', labelsize=20)
-    ax.text(x=-0.5, y=int(get_max_pdf(covid_val)[1]), s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=16, color="black", va="center")
-    ax.text(x=0.42, y=int(get_max_pdf(non_covid_val)[1]), s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=16, color="black", va="center")
+    ax.text(x=-0.48, y=int(get_max_pdf(covid_val)[1]), s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=16, color="black", va="center")
+    ax.text(x=0.43, y=int(get_max_pdf(non_covid_val)[1]), s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=16, color="black", va="center")
     ax.set_xticks(np.arange(2))
     ax.set_ylim(0,)
     ax.set_xticklabels(
         ('covid', 'non-covid'),
        ha='center', fontsize=22
     )
-    max_covid_val = np.max(covid_val)
-    max_non_covid_val = np.max(non_covid_val)
-    if max_covid_val > 50:
-        ax.text(x=0-0.05, y=51, s=str(round(max_covid_val, 1)), fontsize=16)
-    
-    if max_non_covid_val > 50:
-        ax.text(x=1-0.05, y=51, s=str(round(max_non_covid_val, 1)), fontsize=16)
 
-fig, ax = plt.subplots(figsize=(12, 8))
-fig.tight_layout(h_pad=10.0, w_pad=6.0)
+fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
 
 plot_violin(covid_val=df_covid_vals, non_covid_val=df_non_covid_vals, ax=ax, title=title, ylabel=ylabel)
-plt.savefig("/cluster_plots/" + savefig_title, dpi=100)
+plt.savefig("/home/cmt2002/cluster_analysis/plots/" + savefig_title, dpi=100)
