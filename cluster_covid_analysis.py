@@ -18,13 +18,16 @@ metric = sys.argv[1]
 ylabel = ""
 title = ""
 
+WIDTH = 5
+HEIGHT = 11
+
 if metric == "node_memory_MemFree":
     df_total = pd.read_parquet(DAS_PATH + "node_memory_MemTotal")
     df_free = pd.read_parquet(DAS_PATH + "node_memory_MemFree")
-    # df = 1 - (df_free / df_total) # Utilization fraction
-    df = (df_total - df_free) / (1024 * 1024 * 1024)
-    ylabel = "Utilized memory [GB]"
-    title = "RAM Utilization"
+    df = 100* (1 - (df_free / df_total)) # Utilization fraction
+    # df = (df_total - df_free) / (1024 * 1024 * 1024)
+    ylabel = "RAM Utilization %"
+    title = ""
 
 elif metric == "node_load1":
     df = pd.read_parquet(DAS_PATH + metric)
@@ -103,7 +106,9 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
        ha='center', fontsize=22
     )
 
-fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+fig, ax = plt.subplots(figsize=(HEIGHT, WIDTH), constrained_layout=True)
 
 plot_violin(covid_val=df_covid_vals, non_covid_val=df_non_covid_vals, ax=ax, title=title, ylabel=ylabel)
 plt.savefig("/home/cmt2002/cluster_analysis/plots/" + savefig_title, dpi=100)
+
+print("Done!")
