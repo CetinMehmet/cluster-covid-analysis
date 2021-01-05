@@ -7,7 +7,4 @@
 #SBATCH -e slurm-%j.err                                                         
 #SBATCH -o slurm-%j.out                                                         
 
-python3 /home/cmt2002/cluster_analysis/cluster_covid_analysis.py node_load1
-#python3 /home/cmt2002/cluster_analysis/cluster_covid_analysis.py surfsara_power_usage
-#python3 /home/cmt2002/cluster_analysis/cluster_covid_analysis.py surfsara_ambient_temp
-#python3 /home/cmt2002/cluster_analysis/cluster_covid_analysis.py node_memory_MemFree
+python3 /home/cmt2002/cluster_analysis/power_consumption_plot.py surfsara_power_usage

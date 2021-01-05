@@ -24,9 +24,9 @@ HEIGHT = 11
 if metric == "node_memory_MemFree":
     df_total = pd.read_parquet(DAS_PATH + "node_memory_MemTotal")
     df_free = pd.read_parquet(DAS_PATH + "node_memory_MemFree")
-    df = 100* (1 - (df_free / df_total)) # Utilization fraction
+    df = 100 * (1 - (df_free / df_total)) # Utilization fraction
     # df = (df_total - df_free) / (1024 * 1024 * 1024)
-    ylabel = "RAM Utilization %"
+    ylabel = "RAM Utilization [%]"
     title = ""
 
 elif metric == "node_load1":
@@ -66,8 +66,8 @@ def get_custom_values(df):
         arr = df[column].values
         mask = (np.isnan(arr) | (arr < 0))
         
-    arr = arr[~mask]  # Filter out NaN values and less than 0
-    values = np.append(values, arr)
+        arr = np.round(arr[~mask], 1)  # Filter out NaN values and less than 0 and round the values for ram utilization
+        values = np.append(values, arr)
     return values
 
 def get_max_pdf(df):
@@ -97,22 +97,22 @@ def plot_violin(covid_val, non_covid_val, ax, title, ylabel):
     ax.set_ylabel(ylabel, fontsize=22)
     ax.tick_params(axis='both', which='major', labelsize=20)
     ax.tick_params(axis='both', which='minor', labelsize=20)
-    ax.text(x=-0.43, y=int(get_max_pdf(covid_val)[1])+1, s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=16, color="black", va="center")
-    ax.text(x=0.42, y=int(get_max_pdf(non_covid_val)[1])+1, s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=16, color="black", va="center")
+    ax.text(x=0+0.41, y=int(get_max_pdf(covid_val)[1]), s="{:.2f}".format(get_max_pdf(covid_val)[0]), fontsize=15, color="black", va="center")
+    ax.text(x=1+0.38, y=int(get_max_pdf(non_covid_val)[1]), s="{:.2f}".format(get_max_pdf(non_covid_val)[0]), fontsize=15, color="black", va="center")
     ax.set_xticks(np.arange(2))
-    ax.set_ylim(0, 50)
+    ax.set_ylim(0, )
     ax.set_xticklabels(
         ('covid', 'non-covid'),
        ha='center', fontsize=22
     )
     # Just for load1 plots
-    max_covid_val = np.max(covid_val)
-    max_non_covid_val = np.max(non_covid_val)
+    #max_covid_val = np.max(covid_val)
+    #max_non_covid_val = np.max(non_covid_val)
     
-    if max_covid_val > 50:
-        ax.text(x=0-0.07, y=51, s=str(max_covid_val), fontsize=15, color="black", va="center")
-    if max_non_covid_val > 50:
-         ax.text(x=1, y=51, s=str(max_non_covid_val), fontsize=15, color="black", va="center")
+    #if max_covid_val > 50:
+       # ax.text(x=0-0.07, y=51, s=str(max_covid_val), fontsize=15, color="black", va="center")
+    #if max_non_covid_val > 50:
+        # ax.text(x=1, y=51, s=str(max_non_covid_val), fontsize=15, color="black", va="center")
 
 
 fig, ax = plt.subplots(figsize=(HEIGHT, WIDTH), constrained_layout=True)
